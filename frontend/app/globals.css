@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fafafa; /* ivory */
+  --foreground: #1a1a2e; /* charcoal */
+  --card: #ffffff;
+  --muted: #f1efe9;
+  --border: #e7e2d6;
+  --accent: #c9a96e; /* rose gold */
+}
+
+.dark {
+  --background: #14141f;
+  --foreground: #f3efe7;
+  --card: #1d1d2e;
+  --muted: #25253a;
+  --border: #313150;
+  --accent: #c9a96e;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-heading {
+  font-family: var(--font-cormorant), "Cormorant Garamond", serif;
+}
+
+/* Hide native cursor when custom cursor active (desktop only) */
+@media (hover: hover) and (pointer: fine) {
+  .custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--muted);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+.text-balance {
+  text-wrap: balance;
+}

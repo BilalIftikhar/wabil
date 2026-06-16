@@ -1,0 +1,90 @@
+version: "3.9"
+
+# WABIL — full local stack: Next.js + Laravel + PostgreSQL + Redis + Meilisearch
+# Bring up with:  docker compose up -d --build
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: wabil_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_DEFAULT_CURRENCY=PKR
+    depends_on:
+      - backend
+    networks:
+      - wabil
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: wabil_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=wabil
+      - DB_USERNAME=wabil
+      - DB_PASSWORD=wabil
+      - REDIS_HOST=redis
+      - CACHE_STORE=redis
+      - QUEUE_CONNECTION=redis
+      - SCOUT_DRIVER=meilisearch
+      - MEILISEARCH_HOST=http://meilisearch:7700
+    depends_on:
+      - postgres
+      - redis
+      - meilisearch
+    networks:
+      - wabil
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: wabil_postgres
+    environment:
+      - POSTGRES_DB=wabil
+      - POSTGRES_USER=wabil
+      - POSTGRES_PASSWORD=wabil
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - wabil
+
+  redis:
+    image: redis:7-alpine
+    container_name: wabil_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - wabil
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    container_name: wabil_meilisearch
+    environment:
+      - MEILI_MASTER_KEY=wabil_master_key
+      - MEILI_ENV=development
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilidata:/meili_data
+    networks:
+      - wabil
+
+volumes:
+  pgdata:
+  meilidata:
+
+networks:
+  wabil:
+    driver: bridge
