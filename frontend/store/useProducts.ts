@@ -73,6 +73,7 @@ interface ProductState {
   add: (p: StoreProduct) => void;
   update: (p: StoreProduct) => void;
   remove: (ids: string[]) => void;
+  setAll: (products: StoreProduct[]) => void;
   bySlug: (slug: string) => StoreProduct | undefined;
 }
 
@@ -83,6 +84,8 @@ export const useProducts = create<ProductState>()(
       add: (p) => set((s) => ({ products: [p, ...s.products] })),
       update: (p) => set((s) => ({ products: s.products.map((x) => (x.id === p.id ? p : x)) })),
       remove: (ids) => set((s) => ({ products: s.products.filter((x) => !ids.includes(x.id)) })),
+      // Replace the whole catalog (used when syncing from Supabase).
+      setAll: (products) => set({ products }),
       bySlug: (slug) => get().products.find((p) => p.slug === slug),
     }),
     {

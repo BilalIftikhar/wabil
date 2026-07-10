@@ -309,3 +309,82 @@ insert into shipping_methods (name, price_pkr, eta_days, active) values
   ('Express (Leopards)', 600, '1–2 days', true),
   ('Free Shipping', 0, '5–7 days', true)
 on conflict do nothing;
+
+-- ============================================================================
+-- STOREFRONT CATALOG (denormalized — used by the Next.js app + admin panel)
+-- One row per product; media are public URLs from the `media` storage bucket.
+-- ============================================================================
+create table if not exists shop_products (
+  id              text primary key,
+  slug            text unique not null,
+  name            text not null,
+  category        text not null,
+  price_pkr       numeric(12,2) not null,
+  compare_pkr     numeric(12,2),
+  images          jsonb not null default '[]',   -- ["https://.../a.jpg", ...]
+  video           text,                          -- public URL or null
+  colors          jsonb not null default '[]',   -- ["#C9A96E", ...]
+  sizes           jsonb not null default '[]',   -- ["S","M","L"]
+  badge           text,
+  rating          numeric(3,2) not null default 5,
+  status          text not null default 'active' check (status in ('active','draft')),
+  variants        jsonb not null default '[]',   -- [{size,color,stock}]
+  seo_title       text,
+  seo_description text,
+  created_at      timestamptz not null default now()
+);
+
+alter table shop_products enable row level security;
+drop policy if exists "shop read"  on shop_products;
+drop policy if exists "shop write" on shop_products;
+create policy "shop read"  on shop_products for select using (status = 'active' or is_admin());
+create policy "shop write" on shop_products for all using (is_admin()) with check (is_admin());
+
+-- ---- Media storage bucket (public read, admin write) ----------------------
+insert into storage.buckets (id, name, public) values ('media', 'media', true)
+on conflict (id) do nothing;
+
+drop policy if exists "media public read" on storage.objects;
+drop policy if exists "media admin write" on storage.objects;
+drop policy if exists "media admin update" on storage.objects;
+drop policy if exists "media admin delete" on storage.objects;
+create policy "media public read"  on storage.objects for select using (bucket_id = 'media');
+create policy "media admin write"  on storage.objects for insert with check (bucket_id = 'media' and is_admin());
+create policy "media admin update" on storage.objects for update using (bucket_id = 'media' and is_admin());
+create policy "media admin delete" on storage.objects for delete using (bucket_id = 'media' and is_admin());
+
+-- ---- Seed catalog ----------------------------------------------------------
+insert into shop_products (id, slug, name, category, price_pkr, compare_pkr, images, colors, sizes, badge, rating, variants) values
+  ('p1','rose-lawn-3pc','Rose Lawn 3-Piece','Unstitched',8900,11900,
+    '["https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=800&q=80"]',
+    '["#F4C2C2","#C9A96E","#1A1A2E"]','["S","M","L"]','Bestseller',4.8,
+    '[{"size":"S","color":"Blush","stock":12},{"size":"M","color":"Blush","stock":6},{"size":"L","color":"Rose Gold","stock":8}]'),
+  ('p2','charcoal-silk','Charcoal Silk Formal','Formal',18500,null,
+    '["https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80"]',
+    '["#1A1A2E","#C9A96E"]','["S","M","L","XL"]','New',4.9,
+    '[{"size":"M","color":"Charcoal","stock":6},{"size":"L","color":"Charcoal","stock":4}]'),
+  ('p3','blush-chiffon','Blush Chiffon Party','Party',14200,16900,
+    '["https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=800&q=80"]',
+    '["#F4C2C2","#FAFAFA"]','["S","M","L"]',null,4.7,
+    '[{"size":"S","color":"Blush","stock":10}]'),
+  ('p4','zara-bridal','Zara Bridal Couture','Bridal',89000,110000,
+    '["https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?auto=format&fit=crop&w=800&q=80"]',
+    '["#C9A96E","#F4C2C2"]','["Custom"]','Couture',5.0,
+    '[{"size":"Custom","color":"Rose Gold","stock":4}]'),
+  ('p5','ivory-formal','Ivory Embroidered','Formal',22500,null,
+    '["https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=800&q=80"]',
+    '["#FAFAFA","#C9A96E"]','["S","M","L"]',null,4.6,
+    '[{"size":"M","color":"Ivory","stock":7}]'),
+  ('p6','emerald-velvet','Emerald Velvet Winter','Winter',26900,31000,
+    '["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1551803091-e20673f15770?auto=format&fit=crop&w=800&q=80"]',
+    '["#2d6a4f","#C9A96E"]','["M","L","XL"]','Limited',4.8,
+    '[{"size":"L","color":"Emerald","stock":5}]'),
+  ('p7','midnight-organza','Midnight Organza','Party',19900,null,
+    '["https://images.unsplash.com/photo-1469504512102-900f29606341?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?auto=format&fit=crop&w=800&q=80"]',
+    '["#1A1A2E","#8E9AAF"]','["S","M","L"]',null,4.5,
+    '[{"size":"M","color":"Midnight","stock":9}]'),
+  ('p8','sand-cotton','Sand Cotton Casual','Casual',6900,8500,
+    '["https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=800&q=80","https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?auto=format&fit=crop&w=800&q=80"]',
+    '["#C9A96E","#FAFAFA"]','["S","M","L","XL"]',null,4.4,
+    '[{"size":"M","color":"Sand","stock":15}]')
+on conflict (id) do nothing;

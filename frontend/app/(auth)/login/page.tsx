@@ -11,10 +11,11 @@ import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const login = useAuth((s) => s.login);
+  const signIn = useAuth((s) => s.signIn);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const input =
     "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition focus:border-rosegold focus:ring-2 focus:ring-rosegold/20";
@@ -25,12 +26,19 @@ export default function LoginPage() {
       <p className="mb-6 mt-1 text-sm text-foreground/55">Sign in to your WABIL account</p>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!email || !password) return toast.error("Enter email and password");
-          const user = login(email);
-          toast.success(`Welcome, ${user.name}`);
-          router.push(user.role === "admin" ? "/admin/dashboard" : "/account");
+          setBusy(true);
+          try {
+            const user = await signIn(email, password);
+            toast.success(`Welcome, ${user.name}`);
+            router.push(user.role === "admin" ? "/admin/dashboard" : "/account");
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Sign in failed");
+          } finally {
+            setBusy(false);
+          }
         }}
         className="space-y-4"
       >
@@ -60,9 +68,10 @@ export default function LoginPage() {
         </div>
         <motion.button
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-xl bg-charcoal py-3 font-medium text-ivory transition hover:bg-charcoal/90"
+          disabled={busy}
+          className="w-full rounded-xl bg-charcoal py-3 font-medium text-ivory transition hover:bg-charcoal/90 disabled:opacity-60"
         >
-          Sign In
+          {busy ? "Signing in…" : "Sign In"}
         </motion.button>
       </form>
 

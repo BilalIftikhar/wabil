@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { Edit3, Film, ImagePlus, Plus, Search, Trash2, X } from "lucide-react";
 import { type StoreProduct, type Variant, slugify, useProducts } from "@/store/useProducts";
 import { useCurrency } from "@/store/useCurrency";
-import { fileToDataUrl, MAX_IMAGE_MB, MAX_VIDEO_MB, sizeMb } from "@/lib/upload";
+import { uploadMedia, MAX_IMAGE_MB, MAX_VIDEO_MB, sizeMb } from "@/lib/upload";
+import { deleteProducts, productsRemote, saveProduct } from "@/lib/api/products";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { Drawer } from "@/components/admin/Drawer";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -45,24 +46,32 @@ export default function AdminProductsPage() {
 
   const stockOf = (p: StoreProduct) => p.variants.reduce((n, v) => n + v.stock, 0);
 
-  const save = (p: StoreProduct) => {
+  const save = async (p: StoreProduct) => {
     const slug = p.slug || slugify(p.name);
     const image = p.images[0] ?? p.image ?? "";
-    const clean: StoreProduct = { ...p, slug, image, hoverImage: p.images[1] ?? image };
-    if (p.id) {
-      update(clean);
-      toast.success("Product updated — live on storefront");
-    } else {
-      add({ ...clean, id: "p" + Date.now() });
-      toast.success("Product created — live on storefront");
-    }
+    const clean: StoreProduct = { ...p, id: p.id || "p" + Date.now(), slug, image, hoverImage: p.images[1] ?? image };
+    // Update the in-memory store immediately for a snappy UI…
+    if (p.id) update(clean);
+    else add(clean);
     setEditing(null);
+    // …then persist to Supabase when configured (shared across all visitors).
+    try {
+      await saveProduct(clean);
+      toast.success(productsRemote ? "Saved to database — live on storefront" : "Saved — live on storefront");
+    } catch (e) {
+      toast.error("Saved locally, but the database write failed");
+    }
   };
 
-  const doRemove = (ids: string[]) => {
+  const doRemove = async (ids: string[]) => {
     remove(ids);
     setSelected((s) => s.filter((id) => !ids.includes(id)));
-    toast.success(`Deleted ${ids.length} product${ids.length > 1 ? "s" : ""}`);
+    try {
+      await deleteProducts(ids);
+      toast.success(`Deleted ${ids.length} product${ids.length > 1 ? "s" : ""}`);
+    } catch {
+      toast.error("Removed locally, but the database delete failed");
+    }
   };
 
   return (
@@ -202,12 +211,14 @@ function ProductEditor({ product, onClose, onSave }: { product: StoreProduct | n
           toast.error(`${file.name} is over ${MAX_IMAGE_MB}MB — skipped`);
           continue;
         }
-        urls.push(await fileToDataUrl(file));
+        urls.push(await uploadMedia(file, "products"));
       }
       if (urls.length) {
         update({ images: [...current.images, ...urls] });
-        toast.success(`${urls.length} image(s) added`);
+        toast.success(`${urls.length} image(s) uploaded`);
       }
+    } catch {
+      toast.error("Image upload failed");
     } finally {
       setUploading(false);
     }
@@ -216,11 +227,13 @@ function ProductEditor({ product, onClose, onSave }: { product: StoreProduct | n
   const onVideo = async (files: FileList | null) => {
     if (!files?.[0] || !current) return;
     const file = files[0];
-    if (sizeMb(file) > MAX_VIDEO_MB) return toast.error(`Video is over ${MAX_VIDEO_MB}MB — use Supabase Storage for larger files`);
+    if (sizeMb(file) > MAX_VIDEO_MB) return toast.error(`Video is over ${MAX_VIDEO_MB}MB`);
     setUploading(true);
     try {
-      update({ video: await fileToDataUrl(file) });
-      toast.success("Video added");
+      update({ video: await uploadMedia(file, "videos") });
+      toast.success("Video uploaded");
+    } catch {
+      toast.error("Video upload failed");
     } finally {
       setUploading(false);
     }

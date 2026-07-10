@@ -6,6 +6,8 @@ import { Toaster } from "sonner";
 import { useEffect, useState } from "react";
 import { useCurrency } from "@/store/useCurrency";
 import { useProducts } from "@/store/useProducts";
+import { useAuth } from "@/store/useAuth";
+import { fetchProducts } from "@/lib/api/products";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
@@ -20,8 +22,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadRates();
-    // Pull persisted product edits/uploads from localStorage after mount.
-    useProducts.persist.rehydrate();
+    // Restore an existing Supabase session (no-op in mock mode).
+    useAuth.getState().init();
+    // Load the catalog: from Supabase when configured (shared, real), else from
+    // the localStorage-persisted store (demo mode).
+    (async () => {
+      try {
+        const remote = await fetchProducts();
+        if (remote && remote.length) useProducts.getState().setAll(remote);
+        else useProducts.persist.rehydrate();
+      } catch {
+        useProducts.persist.rehydrate();
+      }
+    })();
   }, [loadRates]);
 
   return (

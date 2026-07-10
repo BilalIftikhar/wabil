@@ -10,8 +10,9 @@ import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const login = useAuth((s) => s.login);
+  const signUp = useAuth((s) => s.signUp);
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [busy, setBusy] = useState(false);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -25,13 +26,20 @@ export default function RegisterPage() {
       <p className="mb-6 mt-1 text-sm text-foreground/55">Join WABIL — 10% off your first order</p>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!form.name || !form.email || !form.password) return toast.error("All fields are required");
           if (form.password !== form.confirm) return toast.error("Passwords do not match");
-          const user = login(form.email, form.name);
-          toast.success(`Welcome to WABIL, ${user.name}`);
-          router.push("/account");
+          setBusy(true);
+          try {
+            const user = await signUp(form.name, form.email, form.password);
+            toast.success(`Welcome to WABIL, ${user.name}`);
+            router.push("/account");
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Sign up failed");
+          } finally {
+            setBusy(false);
+          }
         }}
         className="space-y-4"
       >
@@ -59,9 +67,10 @@ export default function RegisterPage() {
         ))}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          className="w-full rounded-xl bg-charcoal py-3 font-medium text-ivory transition hover:bg-charcoal/90"
+          disabled={busy}
+          className="w-full rounded-xl bg-charcoal py-3 font-medium text-ivory transition hover:bg-charcoal/90 disabled:opacity-60"
         >
-          Create Account
+          {busy ? "Creating…" : "Create Account"}
         </motion.button>
       </form>
 

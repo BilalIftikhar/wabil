@@ -20,7 +20,7 @@ const NAV = [
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <>
@@ -59,8 +59,8 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                 );
               })}
               <button
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await signOut();
                   router.push("/login");
                 }}
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-500 hover:bg-rose-500/10"
