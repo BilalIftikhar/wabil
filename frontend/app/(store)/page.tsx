@@ -7,7 +7,8 @@ import { Star } from "lucide-react";
 import { Typewriter } from "@/components/store/Typewriter";
 import { ProductCard } from "@/components/store/ProductCard";
 import { Reveal } from "@/components/ui/Reveal";
-import { collections, products } from "@/lib/mock/products";
+import { collections } from "@/lib/mock/products";
+import { activeProducts, useProducts } from "@/store/useProducts";
 
 const testimonials = [
   { name: "Ayesha K.", text: "The bridal couture exceeded every expectation. I truly felt like royalty.", city: "Lahore" },
@@ -16,6 +17,7 @@ const testimonials = [
 ];
 
 export default function HomePage() {
+  const trending = activeProducts(useProducts((s) => s.products)).slice(0, 8);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 160]);
@@ -96,7 +98,7 @@ export default function HomePage() {
           </Link>
         </Reveal>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {products.slice(0, 8).map((p) => (
+          {trending.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>

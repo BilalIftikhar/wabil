@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { ProductCard } from "@/components/store/ProductCard";
-import { products } from "@/lib/mock/products";
+import { activeProducts, useProducts } from "@/store/useProducts";
 
 const CATEGORIES = ["Unstitched", "Formal", "Party", "Bridal", "Winter", "Casual"];
 const SIZES = ["S", "M", "L", "XL", "Custom"];
@@ -19,16 +19,17 @@ export default function ShopPage() {
   const [sizes, setSizes] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState(120000);
   const [sort, setSort] = useState("featured");
+  const all = useProducts((s) => s.products);
 
   const filtered = useMemo(() => {
-    let list = products.filter((p) => p.pricePkr <= maxPrice);
+    let list = activeProducts(all).filter((p) => p.pricePkr <= maxPrice);
     if (cats.length) list = list.filter((p) => cats.includes(p.category));
     if (sizes.length) list = list.filter((p) => p.sizes.some((s) => sizes.includes(s)));
     if (sort === "price-asc") list = [...list].sort((a, b) => a.pricePkr - b.pricePkr);
     if (sort === "price-desc") list = [...list].sort((a, b) => b.pricePkr - a.pricePkr);
     if (sort === "rating") list = [...list].sort((a, b) => b.rating - a.rating);
     return list;
-  }, [cats, sizes, maxPrice, sort]);
+  }, [all, cats, sizes, maxPrice, sort]);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);

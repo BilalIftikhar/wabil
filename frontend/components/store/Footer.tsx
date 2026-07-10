@@ -19,16 +19,34 @@ export function Footer() {
         </div>
 
         {[
-          { title: "Shop", links: ["New Arrivals", "Bridal", "Formal", "Party", "Unstitched"] },
-          { title: "Help", links: ["Size Guide", "Shipping", "Returns", "Track Order", "Contact"] },
+          {
+            title: "Shop",
+            links: [
+              { label: "New Arrivals", href: "/shop" },
+              { label: "Bridal", href: "/categories/bridal" },
+              { label: "Formal", href: "/categories/formal" },
+              { label: "Party", href: "/categories/party" },
+              { label: "Unstitched", href: "/categories/unstitched" },
+            ],
+          },
+          {
+            title: "Help",
+            links: [
+              { label: "Size Guide", href: "/help/size-guide" },
+              { label: "Shipping", href: "/help/shipping" },
+              { label: "Returns", href: "/help/returns" },
+              { label: "Track Order", href: "/account" },
+              { label: "Contact", href: "/help/contact" },
+            ],
+          },
         ].map((col) => (
           <div key={col.title}>
             <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide">{col.title}</h4>
             <ul className="space-y-2 text-sm text-foreground/55">
               {col.links.map((l) => (
-                <li key={l}>
-                  <Link href="/shop" className="hover:text-rosegold">
-                    {l}
+                <li key={l.label}>
+                  <Link href={l.href} className="hover:text-rosegold">
+                    {l.label}
                   </Link>
                 </li>
               ))}

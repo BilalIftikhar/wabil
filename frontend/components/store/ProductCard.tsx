@@ -5,12 +5,12 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { toast } from "sonner";
-import type { Product } from "@/lib/mock/products";
+import type { StoreProduct } from "@/store/useProducts";
 import { useCart } from "@/store/useCart";
 import { useCurrency } from "@/store/useCurrency";
 import { useWishlist } from "@/store/useWishlist";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: StoreProduct }) {
   const { format } = useCurrency();
   const add = useCart((s) => s.add);
   const { has, toggle } = useWishlist();

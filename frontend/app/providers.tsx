@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { useEffect, useState } from "react";
 import { useCurrency } from "@/store/useCurrency";
+import { useProducts } from "@/store/useProducts";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [client] = useState(
@@ -19,6 +20,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     loadRates();
+    // Pull persisted product edits/uploads from localStorage after mount.
+    useProducts.persist.rehydrate();
   }, [loadRates]);
 
   return (
