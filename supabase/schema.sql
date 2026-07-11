@@ -290,7 +290,7 @@ create policy "wishlist own"   on wishlists for all using (user_id = auth.uid())
 create table if not exists store_settings (
   id                   int primary key default 1 check (id = 1),
   store_name           text not null default 'WABIL — Premium Ladies Suits',
-  support_email        text not null default 'wabilmanagamenet@gmail.com',
+  support_email        text not null default 'bilaliftikhar431@gmail.com',
   phone                text default '+923215635736',
   default_currency     text not null default 'PKR',
   stripe_key           text,

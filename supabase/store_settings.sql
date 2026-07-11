@@ -3,7 +3,7 @@
 create table if not exists store_settings (
   id                   int primary key default 1 check (id = 1),
   store_name           text not null default 'WABIL — Premium Ladies Suits',
-  support_email        text not null default 'wabilmanagamenet@gmail.com',
+  support_email        text not null default 'bilaliftikhar431@gmail.com',
   phone                text default '+923215635736',
   default_currency     text not null default 'PKR',
   stripe_key           text,
@@ -27,7 +27,7 @@ drop policy if exists "settings admin all" on store_settings;
 create policy "settings admin all" on store_settings for all using (is_admin()) with check (is_admin());
 
 insert into store_settings (id, store_name, support_email, phone, smtp_host, smtp_port, smtp_user, smtp_from)
-values (1, 'WABIL — Premium Ladies Suits', 'wabilmanagamenet@gmail.com', '+923215635736', 'smtp.gmail.com', '587', 'wabilmanagamenet@gmail.com', 'wabilmanagamenet@gmail.com')
+values (1, 'WABIL — Premium Ladies Suits', 'bilaliftikhar431@gmail.com', '+923215635736', 'smtp.gmail.com', '587', 'bilaliftikhar431@gmail.com', 'bilaliftikhar431@gmail.com')
 on conflict (id) do update set
   support_email = excluded.support_email,
   phone = excluded.phone,

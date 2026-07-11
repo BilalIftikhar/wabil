@@ -25,7 +25,7 @@ export type PublicStoreSettings = Pick<
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   storeName: "WABIL — Premium Ladies Suits",
-  supportEmail: "wabilmanagamenet@gmail.com",
+  supportEmail: "bilaliftikhar431@gmail.com",
   phone: "+923215635736",
   defaultCurrency: "PKR",
   stripeKey: "",
@@ -34,14 +34,31 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   easypaisaId: "",
   smtpHost: "smtp.gmail.com",
   smtpPort: "587",
-  smtpUser: "wabilmanagamenet@gmail.com",
+  smtpUser: "bilaliftikhar431@gmail.com",
   smtpPass: "",
-  smtpFrom: "wabilmanagamenet@gmail.com",
+  smtpFrom: "bilaliftikhar431@gmail.com",
   notifyNewOrder: true,
   notifyLowStock: true,
   notifyNewReview: true,
   notifyDailySummary: false,
 };
+
+/** Also receives new-order alerts (in addition to supportEmail). */
+export const EXTRA_ORDER_NOTIFY_EMAIL = "wabilmanagamenet@gmail.com";
+
+export function orderNotifyRecipients(settings: StoreSettings): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const email of [settings.supportEmail, EXTRA_ORDER_NOTIFY_EMAIL]) {
+    const e = email?.trim();
+    if (!e) continue;
+    const key = e.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(e);
+  }
+  return out;
+}
 
 export interface StoreSettingsRow {
   id: number;

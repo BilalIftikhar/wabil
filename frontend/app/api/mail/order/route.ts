@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { loadMailSettings, orderConfirmationHtml, sendMail, smtpConfigured } from "@/lib/mail";
+import { orderNotifyRecipients } from "@/lib/settings";
 
 export async function POST(req: Request) {
   const body = (await req.json()) as {
@@ -35,13 +36,16 @@ export async function POST(req: Request) {
       html,
     });
 
-    if (settings.notifyNewOrder && settings.supportEmail) {
-      await sendMail({
-        settings,
-        to: settings.supportEmail,
-        subject: `New order #${body.orderId}`,
-        html: `<p>New order from <strong>${body.customerName}</strong> (${body.email}) — total ${body.total ?? ""}.</p>`,
-      });
+    if (settings.notifyNewOrder) {
+      const adminHtml = `<p>New order from <strong>${body.customerName}</strong> (${body.email}) — total ${body.total ?? ""}.</p>`;
+      for (const to of orderNotifyRecipients(settings)) {
+        await sendMail({
+          settings,
+          to,
+          subject: `New order #${body.orderId}`,
+          html: adminHtml,
+        });
+      }
     }
 
     return NextResponse.json({ ok: true });
