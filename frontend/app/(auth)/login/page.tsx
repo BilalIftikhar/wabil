@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/store/useAuth";
-import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -75,18 +74,12 @@ export default function LoginPage() {
         </motion.button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-foreground/40">
-        <span className="h-px flex-1 bg-border" /> OR <span className="h-px flex-1 bg-border" />
-      </div>
-      <GoogleButton label="Continue with Google" />
-
       <p className="mt-6 text-center text-sm text-foreground/55">
         New to WABIL?{" "}
         <Link href="/register" className="font-medium text-rosegold hover:underline">
           Create an account
         </Link>
       </p>
-      <p className="mt-2 text-center text-xs text-foreground/35">Tip: use an email with "admin" to reach the admin panel.</p>
     </div>
   );
 }

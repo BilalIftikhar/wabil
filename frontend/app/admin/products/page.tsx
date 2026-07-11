@@ -331,6 +331,25 @@ function ProductEditor({ product, onClose, onSave }: { product: StoreProduct | n
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <label className={label}>Badge label <span className="text-foreground/40 font-normal">(shows on card)</span></label>
+              <select className={input} value={current.badge ?? ""} onChange={(e) => update({ badge: e.target.value || undefined })}>
+                <option value="">None</option>
+                <option value="Bestseller">Bestseller</option>
+                <option value="New">New</option>
+                <option value="Sale">Sale</option>
+                <option value="Limited">Limited</option>
+                <option value="Trending">Trending</option>
+                <option value="Exclusive">Exclusive</option>
+              </select>
+            </div>
+            <div>
+              <label className={label}>Rating <span className="text-foreground/40 font-normal">(out of 5)</span></label>
+              <input className={input} type="number" min="1" max="5" step="0.1" value={current.rating ?? 5} onChange={(e) => update({ rating: Number(e.target.value) })} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
               <label className={label}>Price (PKR)</label>
               <input className={input} type="number" value={current.pricePkr} onChange={(e) => update({ pricePkr: Number(e.target.value) })} />
             </div>

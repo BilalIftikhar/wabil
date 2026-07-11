@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useAuth } from "@/store/useAuth";
-import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -73,11 +72,6 @@ export default function RegisterPage() {
           {busy ? "Creating…" : "Create Account"}
         </motion.button>
       </form>
-
-      <div className="my-5 flex items-center gap-3 text-xs text-foreground/40">
-        <span className="h-px flex-1 bg-border" /> OR <span className="h-px flex-1 bg-border" />
-      </div>
-      <GoogleButton label="Sign up with Google" />
 
       <p className="mt-6 text-center text-sm text-foreground/55">
         Already have an account?{" "}

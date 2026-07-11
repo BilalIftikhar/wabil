@@ -1,7 +1,6 @@
 // Client-side data layer for the expense tracker.
-// Currently backed by the in-memory mock store; the function signatures mirror
-// the Laravel endpoints in backend/routes/api.php so you can swap the bodies
-// for real `fetch(NEXT_PUBLIC_API_URL + ...)` calls without touching the pages.
+// Routes to Supabase when NEXT_PUBLIC_SUPABASE_* env vars are set, otherwise
+// falls back to the in-memory mock store so the app works without a backend.
 
 import {
   type Budget,
@@ -15,6 +14,8 @@ import {
   income as incomeSeed,
   members,
 } from "@/lib/mock/expenses";
+import { supabaseEnabled } from "@/lib/supabase";
+import * as sb from "@/lib/api/expenses.supabase";
 
 // Mutable in-memory copies (reset on reload — demo only).
 let _expenses = [...expensesSeed];
@@ -38,6 +39,7 @@ export interface ExpenseFilters {
 }
 
 export async function listExpenses(filters: ExpenseFilters = {}): Promise<Expense[]> {
+  if (supabaseEnabled) return sb.listExpenses(filters);
   await delay();
   let rows = [..._expenses];
   if (filters.category) rows = rows.filter((e) => e.category.id === filters.category);
@@ -68,6 +70,7 @@ export async function listExpenses(filters: ExpenseFilters = {}): Promise<Expens
 }
 
 export async function createExpense(input: Omit<Expense, "id">): Promise<Expense> {
+  if (supabaseEnabled) { await sb.createExpense(input); return { ...input, id: Date.now() }; }
   await delay();
   const row = { ...input, id: ++_seq };
   _expenses = [row, ..._expenses];
@@ -80,16 +83,19 @@ export async function updateExpense(id: number, patch: Partial<Expense>): Promis
 }
 
 export async function deleteExpenses(ids: number[]): Promise<void> {
+  if (supabaseEnabled) return sb.deleteExpenses(ids);
   await delay();
   _expenses = _expenses.filter((e) => !ids.includes(e.id));
 }
 
 export async function listIncome(): Promise<Income[]> {
+  if (supabaseEnabled) return sb.listIncome();
   await delay();
   return [..._income].sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
 export async function createIncome(input: Omit<Income, "id">): Promise<Income> {
+  if (supabaseEnabled) return sb.createIncome(input);
   await delay();
   const row = { ...input, id: ++_seq };
   _income = [row, ..._income];
@@ -97,11 +103,13 @@ export async function createIncome(input: Omit<Income, "id">): Promise<Income> {
 }
 
 export async function listBudgets(): Promise<Budget[]> {
+  if (supabaseEnabled) return sb.listBudgets();
   await delay();
   return [..._budgets];
 }
 
 export async function upsertBudget(input: Omit<Budget, "id">): Promise<void> {
+  if (supabaseEnabled) return sb.upsertBudget(input);
   await delay();
   const existing = _budgets.find(
     (b) =>
@@ -131,6 +139,7 @@ export interface Overview {
 }
 
 export async function getOverview(): Promise<Overview> {
+  if (supabaseEnabled) return sb.getOverview();
   await delay();
   const now = REFERENCE_TODAY;
   const y = now.getFullYear();

@@ -15,56 +15,69 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { DollarSign, Package, TrendingUp, Users } from "lucide-react";
+import { DollarSign, Loader2, Package, TrendingUp, Users } from "lucide-react";
 import { CountUp } from "@/components/ui/CountUp";
 import { useCurrency } from "@/store/useCurrency";
 import { getOverview } from "@/lib/api/expenses";
-
-// Storefront analytics are mocked here; the expense widget pulls live from the
-// expense tracker to show "net profit vs expenses".
-const revenue7d = [
-  { d: "Mon", v: 420000 },
-  { d: "Tue", v: 380000 },
-  { d: "Wed", v: 560000 },
-  { d: "Thu", v: 610000 },
-  { d: "Fri", v: 720000 },
-  { d: "Sat", v: 980000 },
-  { d: "Sun", v: 845000 },
-];
-const ordersByStatus = [
-  { name: "Delivered", value: 142, color: "#A3B18A" },
-  { name: "Shipped", value: 64, color: "#C9A96E" },
-  { name: "Processing", value: 38, color: "#F4C2C2" },
-  { name: "Pending", value: 21, color: "#8E9AAF" },
-];
-const topProducts = [
-  { name: "Zara Bridal", sales: 86 },
-  { name: "Rose Lawn 3pc", sales: 72 },
-  { name: "Charcoal Silk", sales: 65 },
-  { name: "Blush Chiffon", sales: 54 },
-  { name: "Ivory Formal", sales: 41 },
-];
-const lowStock = [
-  { name: "Rose Lawn 3pc — M", stock: 3 },
-  { name: "Charcoal Silk — L", stock: 2 },
-  { name: "Blush Chiffon — S", stock: 5 },
-];
+import { getDashboardStats } from "@/lib/api/admin.supabase";
+import { supabaseEnabled } from "@/lib/supabase";
 
 export default function Dashboard() {
   const { format } = useCurrency();
-  const { data: expense } = useQuery({ queryKey: ["expense-overview"], queryFn: getOverview });
+
+  const { data: expense } = useQuery({
+    queryKey: ["expense-overview"],
+    queryFn: getOverview,
+  });
+
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: getDashboardStats,
+    enabled: supabaseEnabled,
+    staleTime: 60_000,
+    refetchInterval: 5 * 60_000,
+  });
 
   const kpis = [
-    { label: "Revenue Today", value: 845000, icon: DollarSign, money: true },
-    { label: "Orders", value: 265, icon: Package, money: false },
-    { label: "New Customers", value: 48, icon: Users, money: false },
-    { label: "Conversion Rate", value: 3.8, icon: TrendingUp, money: false, suffix: "%" },
+    {
+      label: "Revenue Today",
+      value: stats?.revenueToday ?? 0,
+      icon: DollarSign,
+      money: true,
+    },
+    {
+      label: "Total Orders",
+      value: stats?.orderCount ?? 0,
+      icon: Package,
+      money: false,
+    },
+    {
+      label: "Customers",
+      value: typeof stats?.customerCount === "number" ? stats.customerCount : 0,
+      icon: Users,
+      money: false,
+    },
+    {
+      label: "Net Profit (mo)",
+      value: expense?.summary.net_balance ?? 0,
+      icon: TrendingUp,
+      money: true,
+    },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex h-60 items-center justify-center">
+        <Loader2 size={32} className="animate-spin text-rosegold" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <h1 className="font-heading text-4xl font-semibold">Dashboard</h1>
 
+      {/* KPI cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k, i) => {
           const Icon = k.icon;
@@ -84,7 +97,7 @@ export default function Dashboard() {
                 {k.money ? (
                   <CountUp value={k.value} format={(n) => format(n)} />
                 ) : (
-                  <CountUp value={k.value} format={(n) => `${n.toFixed(k.suffix ? 1 : 0)}${k.suffix ?? ""}`} />
+                  <CountUp value={k.value} format={(n) => String(Math.round(n))} />
                 )}
               </div>
             </motion.div>
@@ -93,9 +106,10 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
+        {/* Revenue chart */}
         <Card title="Revenue — last 7 days" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={280}>
-            <AreaChart data={revenue7d}>
+            <AreaChart data={stats?.revenue7d ?? []}>
               <defs>
                 <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#C9A96E" stopOpacity={0.5} />
@@ -103,18 +117,33 @@ export default function Dashboard() {
                 </linearGradient>
               </defs>
               <XAxis dataKey="d" fontSize={12} stroke="#9b9b9b" />
-              <YAxis fontSize={12} stroke="#9b9b9b" tickFormatter={(v) => `${v / 1000}k`} />
+              <YAxis fontSize={12} stroke="#9b9b9b" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
               <Tooltip formatter={(v: number) => format(v)} />
-              <Area type="monotone" dataKey="v" stroke="#C9A96E" strokeWidth={3} fill="url(#rev)" animationDuration={1100} />
+              <Area
+                type="monotone"
+                dataKey="v"
+                stroke="#C9A96E"
+                strokeWidth={3}
+                fill="url(#rev)"
+                animationDuration={1100}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </Card>
 
+        {/* Orders by status */}
         <Card title="Orders by Status">
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
-              <Pie data={ordersByStatus} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2}>
-                {ordersByStatus.map((s) => (
+              <Pie
+                data={stats?.ordersByStatus ?? []}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={2}
+              >
+                {(stats?.ordersByStatus ?? []).map((s) => (
                   <Cell key={s.name} fill={s.color} />
                 ))}
               </Pie>
@@ -123,9 +152,10 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </Card>
 
+        {/* Top products */}
         <Card title="Top 5 Products" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={topProducts} layout="vertical" margin={{ left: 20 }}>
+            <BarChart data={stats?.topProducts ?? []} layout="vertical" margin={{ left: 20 }}>
               <XAxis type="number" fontSize={12} stroke="#9b9b9b" />
               <YAxis type="category" dataKey="name" fontSize={12} width={100} stroke="#9b9b9b" />
               <Tooltip />
@@ -135,30 +165,48 @@ export default function Dashboard() {
         </Card>
 
         <div className="space-y-4">
+          {/* Net profit vs expenses */}
           <Card title="Net Profit vs Expenses">
             <div className="space-y-2 text-sm">
-              <Row label="Income (mo)" value={format(expense?.summary.total_income ?? 0)} tone="text-emerald-600" />
-              <Row label="Expenses (mo)" value={format(expense?.summary.total_spent ?? 0)} tone="text-rose-500" />
+              <Row
+                label="Income (mo)"
+                value={format(expense?.summary.total_income ?? 0)}
+                tone="text-emerald-600"
+              />
+              <Row
+                label="Expenses (mo)"
+                value={format(expense?.summary.total_spent ?? 0)}
+                tone="text-rose-500"
+              />
               <div className="my-2 border-t border-border" />
               <Row
                 label="Net Profit"
                 value={format(expense?.summary.net_balance ?? 0)}
-                tone={(expense?.summary.net_balance ?? 0) >= 0 ? "text-emerald-600 font-semibold" : "text-rose-500 font-semibold"}
+                tone={
+                  (expense?.summary.net_balance ?? 0) >= 0
+                    ? "text-emerald-600 font-semibold"
+                    : "text-rose-500 font-semibold"
+                }
               />
             </div>
           </Card>
 
+          {/* Low stock alerts */}
           <Card title="Low Stock Alerts">
-            <ul className="space-y-2 text-sm">
-              {lowStock.map((p) => (
-                <li key={p.name} className="flex items-center justify-between">
-                  <span>{p.name}</span>
-                  <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-500">
-                    {p.stock} left
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {(stats?.lowStock ?? []).length === 0 ? (
+              <p className="text-sm text-foreground/40">All variants well-stocked.</p>
+            ) : (
+              <ul className="space-y-2 text-sm">
+                {(stats?.lowStock ?? []).map((p) => (
+                  <li key={p.name} className="flex items-center justify-between">
+                    <span className="truncate">{p.name}</span>
+                    <span className="ml-2 shrink-0 rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-500">
+                      {p.stock} left
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
         </div>
       </div>
@@ -166,7 +214,15 @@ export default function Dashboard() {
   );
 }
 
-function Card({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
+function Card({
+  title,
+  children,
+  className,
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}

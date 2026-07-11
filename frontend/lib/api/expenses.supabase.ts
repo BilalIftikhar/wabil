@@ -1,10 +1,8 @@
 // Supabase-backed implementation of the expense data layer.
-// Reference adapter: swap imports in the expense pages from "@/lib/api/expenses"
-// to "@/lib/api/expenses.supabase" once NEXT_PUBLIC_SUPABASE_* env vars are set
-// and supabase/schema.sql has been run. Mirrors the mock API's return shapes.
+// Mirrors the mock API's return shapes exactly so pages can use either source.
 
 import { supabase } from "@/lib/supabase";
-import type { Expense, ExpenseSplit, Member } from "@/lib/mock/expenses";
+import type { Budget, Expense, ExpenseSplit, Income, Member } from "@/lib/mock/expenses";
 import type { ExpenseFilters, Overview } from "@/lib/api/expenses";
 
 function client() {
@@ -90,6 +88,69 @@ export async function createExpense(input: Omit<Expense, "id">): Promise<void> {
 
 export async function deleteExpenses(ids: number[]): Promise<void> {
   const { error } = await client().from("expenses").delete().in("id", ids);
+  if (error) throw error;
+}
+
+// ─── INCOME ──────────────────────────────────────────────────────────────────
+
+export async function listIncome(): Promise<Income[]> {
+  const { data, error } = await client()
+    .from("expense_income")
+    .select("*")
+    .order("date", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    source: r.source,
+    amount_pkr: Number(r.amount_pkr),
+    date: r.date,
+    note: r.note ?? undefined,
+  }));
+}
+
+export async function createIncome(input: Omit<Income, "id">): Promise<Income> {
+  const { data, error } = await client()
+    .from("expense_income")
+    .insert({ source: input.source, amount_pkr: input.amount_pkr, date: input.date, note: input.note })
+    .select()
+    .single();
+  if (error) throw error;
+  return { id: data.id, source: data.source, amount_pkr: Number(data.amount_pkr), date: data.date, note: data.note ?? undefined };
+}
+
+// ─── BUDGETS ─────────────────────────────────────────────────────────────────
+
+export async function listBudgets(): Promise<Budget[]> {
+  const { data, error } = await client()
+    .from("expense_budgets")
+    .select("*, expense_categories(*)")
+    .order("id");
+  if (error) throw error;
+  return (data ?? []).map((b: any) => ({
+    id: b.id,
+    category: {
+      id: b.expense_categories.id,
+      name: b.expense_categories.name,
+      icon: b.expense_categories.icon,
+      color_hex: b.expense_categories.color_hex,
+      type: b.expense_categories.type,
+    },
+    month: b.month,
+    year: b.year,
+    budget_amount: Number(b.budget_amount),
+  }));
+}
+
+export async function upsertBudget(input: Omit<Budget, "id">): Promise<void> {
+  const { error } = await client().from("expense_budgets").upsert(
+    {
+      expense_category_id: input.category.id,
+      month: input.month,
+      year: input.year,
+      budget_amount: input.budget_amount,
+    },
+    { onConflict: "expense_category_id,month,year" },
+  );
   if (error) throw error;
 }
 
