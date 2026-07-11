@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useStoreSettings } from "@/store/useStore";
 
 export function Footer() {
   const [email, setEmail] = useState("");
+  const { settings } = useStoreSettings();
 
   return (
     <footer className="border-t border-border bg-card">
@@ -58,11 +60,21 @@ export function Footer() {
           <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide">Newsletter</h4>
           <p className="mb-3 text-sm text-foreground/55">Join for early access & 10% off your first order.</p>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              if (email) {
+              if (!email) return;
+              try {
+                const res = await fetch("/api/mail/newsletter", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error ?? "Subscribe failed");
                 toast.success("Subscribed! Check your inbox ✉️");
                 setEmail("");
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Subscribe failed");
               }
             }}
             className="flex gap-2"
@@ -79,7 +91,10 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-border py-5 text-center text-xs text-foreground/40">
-        © 2026 WABIL — Premium Ladies Suits. All rights reserved.
+        © 2026 {settings.storeName}. All rights reserved.
+        {settings.supportEmail && (
+          <> · <a href={`mailto:${settings.supportEmail}`} className="hover:text-rosegold">{settings.supportEmail}</a></>
+        )}
       </div>
     </footer>
   );

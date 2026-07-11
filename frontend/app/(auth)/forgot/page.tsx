@@ -4,11 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { ArrowLeft, MailCheck } from "lucide-react";
+import { ArrowLeft, Loader2, MailCheck } from "lucide-react";
 
 export default function ForgotPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const input =
     "w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm outline-none transition focus:border-rosegold focus:ring-2 focus:ring-rosegold/20";
@@ -35,16 +36,35 @@ export default function ForgotPage() {
       <h1 className="font-heading text-3xl font-semibold">Forgot password?</h1>
       <p className="mb-6 mt-1 text-sm text-foreground/55">We&apos;ll email you a reset link</p>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!email) return toast.error("Enter your email");
-          setSent(true);
+          setBusy(true);
+          try {
+            const res = await fetch("/api/mail/forgot", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error ?? "Failed to send reset email");
+            setSent(true);
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Failed to send reset email");
+          } finally {
+            setBusy(false);
+          }
         }}
         className="space-y-4"
       >
         <input className={input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-        <motion.button whileTap={{ scale: 0.97 }} className="w-full rounded-xl bg-charcoal py-3 font-medium text-ivory hover:bg-charcoal/90">
-          Send reset link
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          disabled={busy}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-charcoal py-3 font-medium text-ivory hover:bg-charcoal/90 disabled:opacity-60"
+        >
+          {busy && <Loader2 size={16} className="animate-spin" />}
+          {busy ? "Sending…" : "Send reset link"}
         </motion.button>
       </form>
       <Link href="/login" className="mt-6 inline-flex items-center gap-1.5 text-sm text-rosegold hover:underline">

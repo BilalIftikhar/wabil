@@ -18,7 +18,7 @@ export default function CheckoutPage() {
   const { format } = useCurrency();
 
   const [step, setStep] = useState(0);
-  const [address, setAddress] = useState({ name: "", phone: "", line: "", city: "", postal: "" });
+  const [address, setAddress] = useState({ name: "", email: "", phone: "", line: "", city: "", postal: "" });
   const [shipping, setShipping] = useState<ShippingMethod>(SHIPPING_METHODS[0]);
   const [payment, setPayment] = useState<string>("card");
 
@@ -37,14 +37,36 @@ export default function CheckoutPage() {
   }
 
   const next = () => {
-    if (step === 0 && (!address.name || !address.phone || !address.line || !address.city)) {
+    if (step === 0 && (!address.name || !address.email || !address.phone || !address.line || !address.city)) {
       return toast.error("Please complete your address");
     }
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
     const id = "WB" + Math.floor(100000 + (subtotal % 900000));
+    const orderItems = items.map((it) => ({
+      name: it.name,
+      qty: it.qty,
+      price: format(it.pricePkr * it.qty),
+    }));
+
+    try {
+      await fetch("/api/mail/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: address.email,
+          customerName: address.name,
+          orderId: id,
+          total: format(total),
+          items: orderItems,
+        }),
+      });
+    } catch {
+      // order still completes even if email fails
+    }
+
     clear();
     toast.success("Order placed successfully");
     router.push(`/order-confirmation/${id}`);
@@ -98,8 +120,9 @@ export default function CheckoutPage() {
                   <h2 className="font-heading text-2xl font-semibold">Shipping Address</h2>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <input className={input} placeholder="Full name" value={address.name} onChange={(e) => setAddress({ ...address, name: e.target.value })} />
-                    <input className={input} placeholder="Phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
+                    <input className={input} type="email" placeholder="Email" value={address.email} onChange={(e) => setAddress({ ...address, email: e.target.value })} />
                   </div>
+                  <input className={input} placeholder="Phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} />
                   <input className={input} placeholder="Street address" value={address.line} onChange={(e) => setAddress({ ...address, line: e.target.value })} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <input className={input} placeholder="City" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} />

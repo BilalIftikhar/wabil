@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useCurrency } from "@/store/useCurrency";
 import { useProducts } from "@/store/useProducts";
 import { useAuth } from "@/store/useAuth";
+import { useStoreSettings } from "@/store/useStore";
 import { fetchProducts } from "@/lib/api/products";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -24,8 +25,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     loadRates();
     // Restore an existing Supabase session (no-op in mock mode).
     useAuth.getState().init();
-    // Load the catalog: from Supabase when configured (shared, real), else from
-    // the localStorage-persisted store (demo mode).
+    useStoreSettings.getState().loadPublic();
+    // Load the catalog:
     (async () => {
       try {
         const remote = await fetchProducts();

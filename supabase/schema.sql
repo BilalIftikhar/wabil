@@ -284,6 +284,38 @@ create policy "orders insert"  on orders    for insert with check (user_id = aut
 create policy "wishlist own"   on wishlists for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 -- ============================================================================
+-- STORE SETTINGS (singleton — SMTP, store info, payment keys)
+-- Read/written by Next.js API routes using the service-role key.
+-- ============================================================================
+create table if not exists store_settings (
+  id                   int primary key default 1 check (id = 1),
+  store_name           text not null default 'WABIL — Premium Ladies Suits',
+  support_email        text not null default 'wabilmanagamenet@gmail.com',
+  phone                text default '+923215635736',
+  default_currency     text not null default 'PKR',
+  stripe_key           text,
+  stripe_secret        text,
+  jazzcash_id          text,
+  easypaisa_id         text,
+  smtp_host            text,
+  smtp_port            text default '587',
+  smtp_user            text,
+  smtp_pass            text,
+  smtp_from            text,
+  notify_new_order     boolean not null default true,
+  notify_low_stock     boolean not null default true,
+  notify_new_review    boolean not null default true,
+  notify_daily_summary boolean not null default false,
+  updated_at           timestamptz not null default now()
+);
+
+alter table store_settings enable row level security;
+drop policy if exists "settings admin all" on store_settings;
+create policy "settings admin all" on store_settings for all using (is_admin()) with check (is_admin());
+
+insert into store_settings (id) values (1) on conflict (id) do nothing;
+
+-- ============================================================================
 -- SEED DATA
 -- ============================================================================
 insert into expense_members (name, role, color) values
