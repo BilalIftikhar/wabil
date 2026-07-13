@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/store/Navbar";
 import { Footer } from "@/components/store/Footer";
 import { CartDrawer } from "@/components/store/CartDrawer";
+import { WhatsAppButton } from "@/components/store/WhatsAppButton";
 import { PageTransition } from "@/components/PageTransition";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +13,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
         <main className="min-h-screen">{children}</main>
       </PageTransition>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

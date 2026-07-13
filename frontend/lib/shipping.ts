@@ -6,14 +6,13 @@ export interface ShippingMethod {
 }
 
 export const SHIPPING_METHODS: ShippingMethod[] = [
-  { id: "standard", name: "Standard (TCS)", pricePkr: 300, etaDays: "3–5 days" },
-  { id: "express", name: "Express (Leopards)", pricePkr: 600, etaDays: "1–2 days" },
-  { id: "free", name: "Free Shipping", pricePkr: 0, etaDays: "5–7 days" },
+  { id: "standard", name: "Standard Delivery", pricePkr: 200, etaDays: "3–5 days" },
 ];
 
 export const PAYMENT_OPTIONS = [
-  { id: "card", label: "Credit / Debit Card", hint: "Visa, Mastercard via Stripe" },
-  { id: "jazzcash", label: "JazzCash", hint: "Mobile wallet" },
-  { id: "easypaisa", label: "EasyPaisa", hint: "Mobile wallet" },
-  { id: "cod", label: "Cash on Delivery", hint: "Pay when it arrives" },
+  { id: "cod", label: "Cash on Delivery", hint: "Pay in cash when your order arrives" },
+  // Other methods are pending — re-enable once the payment gateways are live.
+  // { id: "card", label: "Credit / Debit Card", hint: "Visa, Mastercard via Stripe" },
+  // { id: "jazzcash", label: "JazzCash", hint: "Mobile wallet" },
+  // { id: "easypaisa", label: "EasyPaisa", hint: "Mobile wallet" },
 ] as const;

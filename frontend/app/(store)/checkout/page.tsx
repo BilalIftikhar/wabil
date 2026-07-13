@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, CreditCard, Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/store/useCart";
 import { useCurrency } from "@/store/useCurrency";
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(0);
   const [address, setAddress] = useState({ name: "", email: "", phone: "", line: "", city: "", postal: "" });
   const [shipping, setShipping] = useState<ShippingMethod>(SHIPPING_METHODS[0]);
-  const [payment, setPayment] = useState<string>("card");
+  const [payment, setPayment] = useState<string>("cod");
 
   const subtotal = subtotalPkr();
   const total = subtotal + shipping.pricePkr;
@@ -170,18 +170,6 @@ export default function CheckoutPage() {
                       <span className={`h-4 w-4 rounded-full border-2 ${payment === p.id ? "border-rosegold bg-rosegold" : "border-border"}`} />
                     </button>
                   ))}
-                  {payment === "card" && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3 rounded-xl bg-muted p-4">
-                      <div className="flex items-center gap-2 text-sm text-foreground/60">
-                        <CreditCard size={16} /> Card details (Stripe Elements mount here)
-                      </div>
-                      <input className={input} placeholder="Card number" />
-                      <div className="grid grid-cols-2 gap-3">
-                        <input className={input} placeholder="MM / YY" />
-                        <input className={input} placeholder="CVC" />
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
               )}
 

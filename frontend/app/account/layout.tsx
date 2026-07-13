@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, LogOut, MapPin, Package, User } from "lucide-react";
+import { Heart, LogOut, Package, User } from "lucide-react";
 import { Navbar } from "@/components/store/Navbar";
 import { Footer } from "@/components/store/Footer";
 import { CartDrawer } from "@/components/store/CartDrawer";
+import { WhatsAppButton } from "@/components/store/WhatsAppButton";
 import { useAuth } from "@/store/useAuth";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { label: "Orders", href: "/account", icon: Package },
-  { label: "Addresses", href: "/account/addresses", icon: MapPin },
   { label: "Wishlist", href: "/account/wishlist", icon: Heart },
   { label: "Profile", href: "/account/profile", icon: User },
 ];
@@ -73,6 +73,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
         </div>
       </div>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

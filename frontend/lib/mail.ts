@@ -3,13 +3,31 @@ import type { StoreSettings } from "@/lib/settings";
 import { DEFAULT_SETTINGS, rowToSettings, type StoreSettingsRow } from "@/lib/settings";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
+/**
+ * SMTP credentials read from environment variables. These take precedence over
+ * the values stored in Supabase, so email can be configured purely via env
+ * (e.g. Vercel → Settings → Environment Variables) without a service-role key.
+ */
+function envMailOverrides(): Partial<StoreSettings> {
+  const e = process.env;
+  const out: Partial<StoreSettings> = {};
+  if (e.SMTP_HOST) out.smtpHost = e.SMTP_HOST;
+  if (e.SMTP_PORT) out.smtpPort = e.SMTP_PORT;
+  if (e.SMTP_USER) out.smtpUser = e.SMTP_USER;
+  if (e.SMTP_PASS) out.smtpPass = e.SMTP_PASS;
+  if (e.SMTP_FROM) out.smtpFrom = e.SMTP_FROM;
+  return out;
+}
+
 export async function loadMailSettings(): Promise<StoreSettings> {
+  const env = envMailOverrides();
   const db = supabaseAdmin();
-  if (!db) return DEFAULT_SETTINGS;
+
+  if (!db) return { ...DEFAULT_SETTINGS, ...env };
 
   const { data, error } = await db.from("store_settings").select("*").eq("id", 1).maybeSingle();
-  if (error || !data) return DEFAULT_SETTINGS;
-  return rowToSettings(data as StoreSettingsRow);
+  if (error || !data) return { ...DEFAULT_SETTINGS, ...env };
+  return { ...rowToSettings(data as StoreSettingsRow), ...env };
 }
 
 export function smtpConfigured(s: StoreSettings) {
