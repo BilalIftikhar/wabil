@@ -96,9 +96,11 @@ export function ProductCard({ product }: { product: StoreProduct }) {
       <div className="mt-3 space-y-1">
         <div className="flex items-center justify-between">
           <p className="text-xs uppercase tracking-wide text-foreground/45">{product.category}</p>
-          <span className="flex items-center gap-0.5 text-xs text-foreground/55">
-            <Star size={12} className="fill-rosegold text-rosegold" /> {product.rating}
-          </span>
+          {product.rating > 0 && (
+            <span className="flex items-center gap-0.5 text-xs text-foreground/55">
+              <Star size={12} className="fill-rosegold text-rosegold" /> {product.rating}
+            </span>
+          )}
         </div>
         <Link href={`/shop/${product.slug}`} className="block font-medium hover:text-rosegold">
           {product.name}

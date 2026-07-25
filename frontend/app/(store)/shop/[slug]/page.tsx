@@ -94,12 +94,13 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
         <div>
           <p className="text-sm uppercase tracking-wide text-foreground/45">{product.category}</p>
           <h1 className="mt-1 font-heading text-4xl font-semibold">{product.name}</h1>
-          <div className="mt-2 flex items-center gap-2 text-sm">
-            <span className="flex items-center gap-0.5 text-rosegold">
-              <Star size={15} className="fill-rosegold" /> {product.rating}
-            </span>
-            <span className="text-foreground/40">· 128 reviews</span>
-          </div>
+          {product.rating > 0 && (
+            <div className="mt-2 flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-0.5 text-rosegold">
+                <Star size={15} className="fill-rosegold" /> {product.rating}
+              </span>
+            </div>
+          )}
 
           <div className="mt-4 flex items-center gap-3">
             <span className="font-heading text-3xl font-semibold">{format(product.pricePkr)}</span>

@@ -11,65 +11,81 @@ export interface Product {
   colors: string[];
   sizes: string[];
   badge?: string;
+  seoTitle?: string;
+  seoDescription?: string;
 }
 
-const img = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`;
+const img = (slug: string, n: 1 | 2) => `/images/products/${slug}-${n}.jpg`;
 
 export const products: Product[] = [
   {
-    id: "1", slug: "rose-lawn-3pc", name: "Rose Lawn 3-Piece", category: "Unstitched",
-    pricePkr: 8900, comparePkr: 11900, image: img("photo-1490481651871-ab68de25d43d"),
-    hoverImage: img("photo-1525507119028-ed4c629a60a3"), rating: 4.8,
-    colors: ["#F4C2C2", "#C9A96E", "#1A1A2E"], sizes: ["S", "M", "L"], badge: "Bestseller",
+    id: "p101", slug: "black-floral-lawn", name: "Noir Rose Embroidered Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("black-floral-lawn", 1), hoverImage: img("black-floral-lawn", 2),
+    rating: 0, colors: ["#1A1A2E", "#E8B4B8"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Noir Rose Embroidered Lawn | WABIL",
+    seoDescription: "3-piece unstitched lawn suit in black — heavy floral embroidery on the neckline, front and sleeves, an embroidered border patch, a dyed trouser, and a digital-printed chiffon dupatta in coral floral tones.",
   },
   {
-    id: "2", slug: "charcoal-silk", name: "Charcoal Silk Formal", category: "Formal",
-    pricePkr: 18500, image: img("photo-1539008835657-9e8e9680c956"),
-    hoverImage: img("photo-1515372039744-b8f02a3ae446"), rating: 4.9,
-    colors: ["#1A1A2E", "#C9A96E"], sizes: ["S", "M", "L", "XL"], badge: "New",
+    id: "p102", slug: "ivory-jazmin-lawn", name: "Ivory Paisley Embroidered Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("ivory-jazmin-lawn", 1), hoverImage: img("ivory-jazmin-lawn", 2),
+    rating: 0, colors: ["#F3EFE3", "#0B3D3C"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Ivory Paisley Embroidered Lawn | WABIL",
+    seoDescription: "3-piece unstitched lawn suit in ivory with heavy multicolour paisley embroidery on the neckline, front and border, matching embroidered sleeves, a dyed teal trouser with an embroidered patch, and a digital-printed chiffon dupatta.",
   },
   {
-    id: "3", slug: "blush-chiffon", name: "Blush Chiffon Party", category: "Party",
-    pricePkr: 14200, comparePkr: 16900, image: img("photo-1483985988355-763728e1935b"),
-    hoverImage: img("photo-1469334031218-e382a71b716b"), rating: 4.7,
-    colors: ["#F4C2C2", "#FAFAFA"], sizes: ["S", "M", "L"],
+    id: "p103", slug: "mustard-sharara", name: "Mustard Gota Sharara Suit", category: "Unstitched",
+    pricePkr: 4500, image: img("mustard-sharara", 1), hoverImage: img("mustard-sharara", 2),
+    rating: 0, colors: ["#B8860B"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Mustard Gota Sharara Suit | WABIL",
+    seoDescription: "3-piece lawn suit in mustard with gota-embroidered neckline, embroidered sleeve and hem patches. Choice of fancy, shafoon or 4-patti dupatta.",
   },
   {
-    id: "4", slug: "zara-bridal", name: "Zara Bridal Couture", category: "Bridal",
-    pricePkr: 89000, comparePkr: 110000, image: img("photo-1496747611176-843222e1e57c"),
-    hoverImage: img("photo-1502716119720-b23a93e5fe1b"), rating: 5.0,
-    colors: ["#C9A96E", "#F4C2C2"], sizes: ["Custom"], badge: "Couture",
+    id: "p104", slug: "teal-jequard-lawn", name: "Teal Jequard Mirror-Work Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("teal-jequard-lawn", 1), hoverImage: img("teal-jequard-lawn", 2),
+    rating: 0, colors: ["#0F6674"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Teal Jequard Mirror-Work Lawn | WABIL",
+    seoDescription: "3-piece lawn suit in teal with heavy diagonal thread and sequin embroidery on the front and sleeves, a mirror-and-bead embellished border, and a jequard striped lawn dupatta.",
   },
   {
-    id: "5", slug: "ivory-formal", name: "Ivory Embroidered", category: "Formal",
-    pricePkr: 22500, image: img("photo-1487412720507-e7ab37603c6f"),
-    hoverImage: img("photo-1485968579580-b6d095142e6e"), rating: 4.6,
-    colors: ["#FAFAFA", "#C9A96E"], sizes: ["S", "M", "L"],
+    id: "p105", slug: "maroon-jequard-lawn", name: "Maroon Jequard Mirror-Work Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("maroon-jequard-lawn", 1), hoverImage: img("maroon-jequard-lawn", 2),
+    rating: 0, colors: ["#7A1E22"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Maroon Jequard Mirror-Work Lawn | WABIL",
+    seoDescription: "3-piece lawn suit in maroon with heavy diagonal thread and sequin embroidery on the front and sleeves, a mirror-and-bead embellished border, and a jequard striped lawn dupatta.",
   },
   {
-    id: "6", slug: "emerald-velvet", name: "Emerald Velvet Winter", category: "Winter",
-    pricePkr: 26900, comparePkr: 31000, image: img("photo-1591047139829-d91aecb6caea"),
-    hoverImage: img("photo-1551803091-e20673f15770"), rating: 4.8,
-    colors: ["#2d6a4f", "#C9A96E"], sizes: ["M", "L", "XL"], badge: "Limited",
+    id: "p106", slug: "black-jequard-lawn", name: "Black Jequard Mirror-Work Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("black-jequard-lawn", 1), hoverImage: img("black-jequard-lawn", 2),
+    rating: 0, colors: ["#141414"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Black Jequard Mirror-Work Lawn | WABIL",
+    seoDescription: "3-piece lawn suit in black with heavy diagonal thread and sequin embroidery on the front and sleeves, a mirror-and-bead embellished border, and a jequard striped lawn dupatta.",
   },
   {
-    id: "7", slug: "midnight-organza", name: "Midnight Organza", category: "Party",
-    pricePkr: 19900, image: img("photo-1469504512102-900f29606341"),
-    hoverImage: img("photo-1502716119720-b23a93e5fe1b"), rating: 4.5,
-    colors: ["#1A1A2E", "#8E9AAF"], sizes: ["S", "M", "L"],
+    id: "p107", slug: "teal-peacock-net-suit", name: "Peacock Floral Net Embroidered Suit", category: "Unstitched",
+    pricePkr: 4500, image: img("teal-peacock-net-suit", 1), hoverImage: img("teal-peacock-net-suit", 2),
+    rating: 0, colors: ["#0C5C63"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Peacock Floral Net Embroidered Suit | WABIL",
+    seoDescription: "Heavily embroidered lawn suit in peacock teal with floral vine embroidery from neckline to hem, an embroidered trouser patch, and a ready-to-wear embroidered cotton-net dupatta.",
   },
   {
-    id: "8", slug: "sand-cotton", name: "Sand Cotton Casual", category: "Casual",
-    pricePkr: 6900, comparePkr: 8500, image: img("photo-1434389677669-e08b4cac3105"),
-    hoverImage: img("photo-1485462537746-965f33f7f6a7"), rating: 4.4,
-    colors: ["#C9A96E", "#FAFAFA"], sizes: ["S", "M", "L", "XL"],
+    id: "p108", slug: "black-palm-floral-lawn", name: "Noir Botanical Embroidered Lawn", category: "Unstitched",
+    pricePkr: 4500, image: img("black-palm-floral-lawn", 1), hoverImage: img("black-palm-floral-lawn", 2),
+    rating: 0, colors: ["#111111"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Noir Botanical Embroidered Lawn | WABIL",
+    seoDescription: "3-piece lawn suit in black with an elaborate multicolour botanical embroidery panel from neckline to hem. Choice of fancy, shafoon or 4-patti dupatta.",
+  },
+  {
+    id: "p109", slug: "lavender-lace-suit", name: "Lavender Lace Applique Suit", category: "Unstitched",
+    pricePkr: 4500, image: img("lavender-lace-suit", 1), hoverImage: img("lavender-lace-suit", 2),
+    rating: 0, colors: ["#B9A6D9"], sizes: ["Unstitched"], badge: "New",
+    seoTitle: "Lavender Lace Applique Suit | WABIL",
+    seoDescription: "3-piece lawn suit in lavender with an embroidered neckline and sleeves, an appliqued floral yoke, and an embroidered trouser patch. Choice of fancy or 4-patti dupatta.",
   },
 ];
 
 export const collections = [
-  { name: "Bridal", image: products[3].image, slug: "bridal" },
-  { name: "Formal", image: products[1].image, slug: "formal" },
-  { name: "Party", image: products[2].image, slug: "party" },
-  { name: "Unstitched", image: products[0].image, slug: "unstitched" },
+  { name: "Bridal", image: "", slug: "bridal" },
+  { name: "Formal", image: "", slug: "formal" },
+  { name: "Party", image: "", slug: "party" },
+  { name: "Unstitched", image: img("black-floral-lawn", 1), slug: "unstitched" },
 ];

@@ -21,39 +21,7 @@ export interface AdminProduct {
   seoDescription?: string;
 }
 
-const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=400&q=70`;
-
-export const adminProducts: AdminProduct[] = [
-  {
-    id: "p1", name: "Rose Lawn 3-Piece", slug: "rose-lawn-3pc", category: "Unstitched",
-    pricePkr: 8900, comparePkr: 11900, image: img("photo-1490481651871-ab68de25d43d"), status: "active",
-    variants: [
-      { size: "S", color: "Blush", stock: 12 },
-      { size: "M", color: "Blush", stock: 3 },
-      { size: "L", color: "Rose Gold", stock: 8 },
-    ],
-    seoTitle: "Rose Lawn 3-Piece Suit | WABIL",
-    seoDescription: "Premium summer lawn 3-piece in blush & rose gold.",
-  },
-  {
-    id: "p2", name: "Charcoal Silk Formal", slug: "charcoal-silk", category: "Formal",
-    pricePkr: 18500, image: img("photo-1539008835657-9e8e9680c956"), status: "active",
-    variants: [
-      { size: "M", color: "Charcoal", stock: 6 },
-      { size: "L", color: "Charcoal", stock: 2 },
-    ],
-  },
-  {
-    id: "p3", name: "Zara Bridal Couture", slug: "zara-bridal", category: "Bridal",
-    pricePkr: 89000, comparePkr: 110000, image: img("photo-1496747611176-843222e1e57c"), status: "active",
-    variants: [{ size: "Custom", color: "Rose Gold", stock: 4 }],
-  },
-  {
-    id: "p4", name: "Blush Chiffon Party", slug: "blush-chiffon", category: "Party",
-    pricePkr: 14200, image: img("photo-1483985988355-763728e1935b"), status: "draft",
-    variants: [{ size: "S", color: "Blush", stock: 0 }],
-  },
-];
+export const adminProducts: AdminProduct[] = [];
 
 export interface AdminOrder {
   id: string;
