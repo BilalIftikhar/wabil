@@ -9,12 +9,7 @@ import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { useCart } from "@/store/useCart";
 import { useAuth } from "@/store/useAuth";
 
-const LINKS = [
-  { label: "Shop", href: "/shop" },
-  { label: "Bridal", href: "/categories/bridal" },
-  { label: "Formal", href: "/categories/formal" },
-  { label: "Party", href: "/categories/party" },
-];
+const LINKS = [{ label: "Shop", href: "/shop" }];
 
 export function Navbar() {
   const { count, setOpen } = useCart();
