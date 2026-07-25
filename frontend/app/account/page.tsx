@@ -11,6 +11,12 @@ export default function OrdersPage() {
   return (
     <div className="space-y-4">
       <h2 className="font-heading text-2xl font-semibold">Order History</h2>
+      {customerOrders.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border py-16 text-center text-foreground/50">
+          <p className="font-heading text-xl">No orders yet</p>
+          <p className="mt-1 text-sm">Your past orders will show up here.</p>
+        </div>
+      )}
       {customerOrders.map((o, i) => (
         <motion.div
           key={o.id}

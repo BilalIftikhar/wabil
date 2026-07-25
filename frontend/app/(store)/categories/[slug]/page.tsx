@@ -20,16 +20,16 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
     [all, params.slug],
   );
 
-  const banner =
-    items[0]?.image ??
-    "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1600&q=80";
+  const banner = items[0]?.image;
 
   return (
     <div>
       {/* Category banner */}
-      <section className="relative flex h-64 items-center justify-center overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={banner} alt={label} className="absolute inset-0 h-full w-full object-cover" />
+      <section className="relative flex h-64 items-center justify-center overflow-hidden bg-charcoal">
+        {banner && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={banner} alt={label} className="absolute inset-0 h-full w-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-charcoal/45" />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 text-center text-ivory">
           <p className="text-sm uppercase tracking-[0.3em] text-blush">WABIL Collection</p>

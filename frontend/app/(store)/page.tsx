@@ -10,11 +10,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { collections } from "@/lib/mock/products";
 import { activeProducts, useProducts } from "@/store/useProducts";
 
-const testimonials = [
-  { name: "Ayesha K.", text: "The bridal couture exceeded every expectation. I truly felt like royalty.", city: "Lahore" },
-  { name: "Fatima R.", text: "Fabric quality is unmatched. My formal suit drew compliments all night.", city: "Karachi" },
-  { name: "Noor S.", text: "Fast delivery, exquisite stitching. WABIL is now my go-to brand.", city: "Dubai" },
-];
+const testimonials: { name: string; text: string; city: string }[] = [];
 
 export default function HomePage() {
   const trending = activeProducts(useProducts((s) => s.products)).slice(0, 8);
@@ -105,30 +101,32 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className="bg-charcoal py-20 text-ivory">
-        <div className="mx-auto max-w-7xl px-6">
-          <Reveal className="mb-10 text-center">
-            <h2 className="font-heading text-4xl font-semibold">Loved by Royalty</h2>
-          </Reveal>
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t, i) => (
-              <Reveal key={t.name} delay={i * 0.1}>
-                <div className="h-full rounded-2xl border border-ivory/10 bg-ivory/5 p-6">
-                  <div className="mb-3 flex gap-0.5 text-rosegold">
-                    {Array.from({ length: 5 }).map((_, j) => (
-                      <Star key={j} size={16} className="fill-rosegold" />
-                    ))}
+      {testimonials.length > 0 && (
+        <section className="bg-charcoal py-20 text-ivory">
+          <div className="mx-auto max-w-7xl px-6">
+            <Reveal className="mb-10 text-center">
+              <h2 className="font-heading text-4xl font-semibold">Loved by Royalty</h2>
+            </Reveal>
+            <div className="grid gap-6 md:grid-cols-3">
+              {testimonials.map((t, i) => (
+                <Reveal key={t.name} delay={i * 0.1}>
+                  <div className="h-full rounded-2xl border border-ivory/10 bg-ivory/5 p-6">
+                    <div className="mb-3 flex gap-0.5 text-rosegold">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <Star key={j} size={16} className="fill-rosegold" />
+                      ))}
+                    </div>
+                    <p className="text-ivory/85">“{t.text}”</p>
+                    <p className="mt-4 text-sm font-medium text-rosegold">
+                      {t.name} · {t.city}
+                    </p>
                   </div>
-                  <p className="text-ivory/85">“{t.text}”</p>
-                  <p className="mt-4 text-sm font-medium text-rosegold">
-                    {t.name} · {t.city}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

@@ -84,8 +84,5 @@ export const products: Product[] = [
 ];
 
 export const collections = [
-  { name: "Bridal", image: "", slug: "bridal" },
-  { name: "Formal", image: "", slug: "formal" },
-  { name: "Party", image: "", slug: "party" },
   { name: "Unstitched", image: img("black-floral-lawn", 1), slug: "unstitched" },
 ];

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { toast } from "sonner";
 import type { StoreProduct } from "@/store/useProducts";
@@ -27,15 +27,20 @@ export function ProductCard({ product }: { product: StoreProduct }) {
       onMouseLeave={() => setHover(false)}
       className="group"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-muted">
+      <div className="relative overflow-hidden rounded-2xl bg-muted shadow-sm transition-shadow duration-300 group-hover:shadow-luxe">
         <Link href={`/shop/${product.slug}`}>
           <div className="relative aspect-[3/4]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.image} alt={product.name} className="absolute inset-0 h-full w-full object-cover" />
+            <img
+              src={product.image}
+              alt={product.name}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            />
             <motion.img
               src={product.hoverImage}
               alt=""
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               animate={{ opacity: hover ? 1 : 0 }}
               transition={{ duration: 0.5 }}
             />
@@ -67,30 +72,23 @@ export function ProductCard({ product }: { product: StoreProduct }) {
           </motion.span>
         </button>
 
-        <AnimatePresence>
-          {hover && (
-            <motion.button
-              initial={{ y: 60, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 60, opacity: 0 }}
-              onClick={() =>
-                add({
-                  id: `${product.id}-${product.sizes[0]}`,
-                  productId: product.id,
-                  name: product.name,
-                  image: product.image,
-                  pricePkr: product.pricePkr,
-                  size: product.sizes[0],
-                  color: "Default",
-                  qty: 1,
-                })
-              }
-              className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2 rounded-xl bg-charcoal py-2.5 text-sm font-medium text-ivory"
-            >
-              <ShoppingBag size={16} /> Add to Bag
-            </motion.button>
-          )}
-        </AnimatePresence>
+        <button
+          onClick={() =>
+            add({
+              id: `${product.id}-${product.sizes[0]}`,
+              productId: product.id,
+              name: product.name,
+              image: product.image,
+              pricePkr: product.pricePkr,
+              size: product.sizes[0],
+              color: "Default",
+              qty: 1,
+            })
+          }
+          className="absolute inset-x-3 bottom-3 flex items-center justify-center gap-2 rounded-xl bg-charcoal py-2.5 text-sm font-medium text-ivory shadow-luxe transition-all duration-300 md:translate-y-3 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
+        >
+          <ShoppingBag size={16} /> Add to Bag
+        </button>
       </div>
 
       <div className="mt-3 space-y-1">
