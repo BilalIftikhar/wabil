@@ -26,7 +26,7 @@ export default function HomePage() {
         <motion.div style={{ y }} className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80"
+            src="/images/products/lavender-lace-suit-1.jpg"
             alt="WABIL lookbook"
             className="h-full w-full object-cover"
           />
@@ -55,8 +55,8 @@ export default function HomePage() {
             <Link href="/shop" className="rounded-full bg-ivory px-8 py-3 font-medium text-charcoal transition hover:bg-blush">
               Shop Collection
             </Link>
-            <Link href="/categories/bridal" className="rounded-full border border-ivory/60 px-8 py-3 font-medium text-ivory transition hover:bg-ivory/10">
-              Bridal Couture
+            <Link href="/categories/unstitched" className="rounded-full border border-ivory/60 px-8 py-3 font-medium text-ivory transition hover:bg-ivory/10">
+              Unstitched Collection
             </Link>
           </motion.div>
         </motion.div>
